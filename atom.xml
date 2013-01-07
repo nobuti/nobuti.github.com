@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Kind of blog]]></title>
+  <link href="http://nobuti.github.com/atom.xml" rel="self"/>
+  <link href="http://nobuti.github.com/"/>
+  <updated>2013-01-07T11:11:28+01:00</updated>
+  <id>http://nobuti.github.com/</id>
+  <author>
+    <name><![CDATA[Buti]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[2013]]></title>
+    <link href="http://nobuti.github.com/blog/2013/01/02/2013/"/>
+    <updated>2013-01-02T10:37:00+01:00</updated>
+    <id>http://nobuti.github.com/blog/2013/01/02/2013</id>
+    <content type="html"><![CDATA[<p>Nunca he sido de echar la vista atrás, siempre he creído que no merece la pena, lo que está por venir siempre es más ilusionante. Tampoco soy de los que empiezan el año marcándose propósitos. No recuerdo que nunca me haya marcado ninguno, ni pienso que sea bueno manejando propósitos, simplemente no encajo. Pero por eso mismo, este año voy a hacerlo, para romper la norma, para como dicen, empezar con buen pie.</p>
+
+<p>2012 ha sido un año extraño. Todavía no sé si ha sido un año bueno o regular. Por más que hago un balance, veo cosas buenas y cosas no tan buenas. Malo no, siempre se pueden sacar cosas que merecen mucho la pena.</p>
+
+<p>En lo profesional, no he acabado contento con el trabajo que hacemos en <a href="http://nicemondays.com">nicemondays</a>. Ha llegado un punto después de 4 años en que necesito hacer proyectos distintos, porque ahora mismo estoy aburrido. Yo me considero una persona inquieta, leer es una de mis pasiones. Y en 2012 si algo he leído han sido libros y artículos sobre trabajo. Y ves que estamos viviendo una época muy intensa y excitante, con nuevas tecnologías cada mes. Ves que todo avanza y progresa muy rápido. Y tú sigues anclado en PHP e IE7.</p>
+
+<p>Pero sin embargo, trabajo con gente genial, que me tratan superbien. Les debo muchísimo. <strong>Y los números cuadran</strong>. Y eso en la época dificil que nos ha tocado vivir, ya es como para estar contento.</p>
+
+<p>En lo personal, este año me he dado cuenta de que los años no pasan en balde. No lo digo por mí, todavía soy joven (o quiero pensarlo) aunque no hay que confiarse ni descuidarse. He notado un deterioro grande en la salud de mis seres queridos. No enfermedades ni nada importante (<em>toco madera</em>), pero sí pequeños achaques, cada vez más continuados, que te hacen pensar y preocuparte bastante.</p>
+
+<p>Empezamos el año haciendo un gran viaje. Volvimos por tercera vez a Nueva York. Y lo hacíamos con dos amigas. Siempre habíamos viajado solos, y siempre habíamos querido viajar con amigos. Pero después de la experiencia, quizás nunca volvamos a hacerlo. El viaje estuvo genial, hay que estar muy muerto por dentro para ir a Nueva York y no pasarlo bien. Pero todas las personas no somos iguales, y surgen roces que van limando las relaciones. Y al final, las cosas dejan huellas y nunca vuelve a ser lo mismo.</p>
+
+<p>2012 ha sido el año en que me cansé de twitter. Mejor dicho, me cansé de usarlo como lo usaba. Ahora lo uso como herramienta de trabajo. Sigo a gente de mi mismo entorno profesional y pocas veces digo algo fuera de ese contexto. Es realmente sorprendente que no haya tenido unfollows masivos, realmente me he convertido en un auténtico coñazo. Supongo que todos somos demasido políticamente correctos para algunas cosas.</p>
+
+<p>También ha sido este el año en que he dejado de ver la tele. En casa ya solo vemos series. Y cada vez es más dificil esto también, porque no suele haber continuidad.</p>
+
+<p>En definitva, 2012 ha sido un año bueno o regular.</p>
+
+<p>Quizás por eso, tengo mucha ilusión en este 2013 que empieza. Y como decía al principio, este año me gustaría hacer una lista (eso sí que nos gusta a los programadores) de propósitos, una lista a la que volver de vez en cuando y ver mi propio progreso, propósitos que juntos formen un objetivo: que el 2013 sea mejor que el 2012.</p>
+
+<ul>
+<li><p>Si hay algo que ansiamos mi mujer y yo en estos momentos es tener un niño. Tenemos una casa grande, y ya es momento de que la ocupe más gente. Llevamos ya tiempo buscando y ojalá sea este el año. Creo que sí. Deseo que sí.</p></li>
+<li><p>Profesionalmente me gustaría dar un salto hacia delante. Y me gustaría darlo en <a href="http://nicemondays.com">nicemondays</a>. Estamos buscando una oficina donde trabajar, al menos los que estamos en Málaga. Creo que esto va a suponer un gran paso, y nos va a traer cosas muy buenas tanto personales como profesionales.</p></li>
+<li><p>Este año tengo la intención de cambiar mi stack tecnológico. Javascript, SASS, Ruby y Node serán mis tecnologías. Por el tipo de proyectos que desarrollamos, Ruby (ya sea Sinatra o RoR) encaja mejor. Pero Node es realmente divertido y poco a poco está adquieriendo una madurez cada vez mayor.</p></li>
+<li><p>Colaborar en proyectos opensource. Este año me he quejado de que no hacemos cosas nuevas, y creo que este punto puede ser una válvula de escape en estos momentos de desidia.</p></li>
+<li><p>Escribir de forma más continuada en el blog. Escribir sobre todo de trabajo, para aprender sobre todo. Quien sabe, igual hay alguien que se pueda aprovechar de algo de lo que aquí escriba.</p></li>
+<li><p>Como logro personal, mejorar mi inglés debe estar en esta lista. En 2013 me gustaría escribir unos cuantos posts en inglés.</p></li>
+</ul>
+
+
+<p>En definitiva, creo que este 2013 va a ser un gran año, estoy convencido.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Hello octopress]]></title>
+    <link href="http://nobuti.github.com/blog/2012/12/27/hello-octopress/"/>
+    <updated>2012-12-27T17:49:00+01:00</updated>
+    <id>http://nobuti.github.com/blog/2012/12/27/hello-octopress</id>
+    <content type="html"><![CDATA[<p>Pues eso, otro intento. Otra válvula de escape, otra página en blanco a la que enfrentarme. Sin obligaciones, sin condiciones, pero (espero) sin descanso. Solo prometo intentarlo.</p>
+]]></content>
+  </entry>
+  
+</feed>
