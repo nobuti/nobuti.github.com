@@ -28,11 +28,11 @@ Si nos fijamos bien, en todo el proceso se crean 3 niveles de ramas con diferent
 Veamos un ejemplo de cómo aplicar este workflow paso a paso. Pongamos que estamos trabajando en un proyecto y en un momento determinado, detectamos un bug o el cliente pide un cambio.
 
 Creamos una rama partiendo de la rama *develop*. En este caso la llamamos *changebugfix*.
-<pre><code class="language-git">git checkout -b changebugfix
+<pre class="language-git"><code class="language-git">git checkout -b changebugfix
 </code></pre>
 
 Trabajas en los cambios a nivel de código, hasta que consigas resolver el problema o implementar la nueva funcionalidad. 
-<pre><code class="language-git">touch file.rb && git add file.rb
+<pre class="language-git"><code class="language-git">touch file.rb && git add file.rb
 …
 git add file.rb
 git commit -m "Adding new feature"
@@ -43,7 +43,7 @@ git commit -m "Adding new lib"
 </code></pre>
 
 Merge *changebugfix* en la rama *develop*. Y testing, testing, testing.
-<pre><code class="language-git">git checkout develop
+<pre class="language-git"><code class="language-git">git checkout develop
 git pull
 git merge changebugfix
 </code></pre>
@@ -51,14 +51,14 @@ git merge changebugfix
 En este punto, descubres que algo no va bien, probablemente no sea culpa tuya, nunca lo es. Pero te toca seguir trabajando en tu rama *changebugfix* para lidiar con este conflicto en el código. Vuelta al punto 2.
 
 Todo funciona perfecto. Es hora de hacer el merge definitivo y borrar la rama de desarrollo:
-<pre><code class="language-git">git checkout develop
+<pre class="language-git"><code class="language-git">git checkout develop
 git merge changebugfix
 git push origin develop
 git branch -d changebugfix
 </code></pre>
 
 Es tiempo de release. El cliente quiere ver lo que hay y poner su logo más grande.
-<pre><code class="language-git">git checkout master
+<pre class="language-git"><code class="language-git">git checkout master
 git merge develop
 </code></pre>
 
@@ -69,7 +69,7 @@ Como siempre trabajamos en nuestra rama local de desarrollo, eso nos permite ent
 
 Yo hago commits continuamente, mucho. Si te pasa como a mi, probablemente termines una rama con algo parecido a esto:
 
-<pre><code class="language-git">Init feature
+<pre class="language-git"><code class="language-git">Init feature
 Add media query mixin
 Fix header link
 Fix media query for devices
@@ -86,12 +86,12 @@ Sería más lógico agrupar todos los commits en aquellos que sean más importan
 
 Para hacer esto, justo antes de hacer el *merge* de nuestra rama con *develop*, ejecutamos un rebase:
 
-<pre><code class="language-git">git rebase develop -i
+<pre class="language-git"><code class="language-git">git rebase develop -i
 </code></pre>
 
 El parámetro -i (interactively) nos permite de forma fácil modificar los commits individuales. Esto nos mostrará por terminal algo como esto:
 
-<pre><code class="language-git">pick 76012fa2 Init feature changebugfix
+<pre class="language-git"><code class="language-git">pick 76012fa2 Init feature changebugfix
 pick 1ed9323a Add media query mixin
 pick 3ae44d64 Fix header link
 pick 61b1ce34 Fix media query for devices
@@ -104,7 +104,7 @@ pick 76012fa2 Fix link
 
 La palabra *pick* la podemos cambiar por diferentes comandos, entre los que más se usan están **r (reword)** para editar el mensaje del commit y **s (squash)** para agrupar el commit con su predecesor. En nuestro caso terminamos teniendo algo parecido a esto:
 
-<pre><code class="language-git">pick 76012fa2 Init feature changebugfix
+<pre class="language-git"><code class="language-git">pick 76012fa2 Init feature changebugfix
 s 1ed9323 Add media query mixin
 s 3ae44d6 Fix header link
 s 61b1ce3 Fix media query for devices
@@ -119,18 +119,18 @@ Como el primer comando es *s* al guardar nos preguntará el mensaje para el comm
 
 Si ahora hacemos
 
-<pre><code class="language-git">git log --oneline
+<pre class="language-git"><code class="language-git">git log --oneline
 </code></pre>
 
 Veremos un solo commit más amigable y comprensible, en lugar de 7 commits con etiquetas menos intuitivas. 
 
-<pre><code class="language-git">git log --oneline
+<pre class="language-git"><code  class="language-git">git log --oneline
 ef3c709 Add responsive request for devices
 </code></pre>
 
 Despues de hacer rebase, continuamos con el merge sobre la rama develop. Recordemos que el rebase solo lo usamos como una forma de organizar y simplificar el histórico de git.
 
-<pre><code class="language-git">git checkout develop
+<pre class="language-git"><code class="language-git">git checkout develop
 git merge changebugfix
 git branch -d changebugfix
 </code></pre>
