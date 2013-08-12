@@ -1,0 +1,247 @@
+<!doctype html>
+<!-- paulirish.com/2008/conditional-stylesheets-vs-css-hacks-answer-neither/ -->
+<!--[if lt IE 7]> <html class="no-js ie6 oldie" lang="en"> <![endif]-->
+<!--[if IE 7]>    <html class="no-js ie7 oldie" lang="en"> <![endif]-->
+<!--[if IE 8]>    <html class="no-js ie8 oldie" lang="en"> <![endif]-->
+<!-- Consider adding an manifest.appcache: h5bp.com/d/Offline -->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en"> <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+
+  <!-- Use the .htaccess and remove these lines to avoid edge case issues.
+       More info: h5bp.com/b/378 -->
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+
+  <title>Trabajando con Git: Workflow |  Buti</title>
+  <meta name="author" content="Buti">
+  
+
+  
+  <!-- Mobile viewport optimized: j.mp/bplateviewport -->
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+
+  <!-- Place favicon.ico and apple-touch-icon.png in the root directory: mathiasbynens.be/notes/touch-icons -->
+
+  <!-- CSS: implied media=all -->
+  <!-- CSS concatenated and minified via ant build script-->
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/stylesheets/prism.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href='http://fonts.googleapis.com/css?family=Inconsolata' rel='stylesheet' type='text/css'>
+  <!-- end CSS-->
+
+  <!-- More ideas for your <head> here: h5bp.com/d/head-Tips -->
+
+  <!-- All JavaScript at the bottom, except for Modernizr / Respond.
+       Modernizr enables HTML5 elements & feature detects; Respond is a polyfill for min/max-width CSS3 Media Queries
+       For optimal performance, use a custom Modernizr build: www.modernizr.com/download/ -->
+  <script src="/javascripts/libs/modernizr-2.0.6.min.js"></script>
+</head>
+
+<body id="post">
+
+  <div id="container">
+    <header>
+    <a href="http://nobuti.github.com">Home</a>
+</header>
+
+    <article>
+
+
+  <h1 class="article-title">Trabajando Con Git: Workflow</h1>
+  <div class="article-content"><p>TL;TD Git mola. Y así es como lo veo yo.</p>
+
+<h2>Introducción</h2>
+
+<p>El objetivo de este post no es convencerte de usar Git. Úsalo y punto. Ni tampoco se trata de una introducción para usarlo. <a href="http://rogerdudler.github.com/git-guide/index.es.html">Hay muchas y muy buenas</a>. En lugar de eso, voy a tratar de plasmar algunas ideas de como usarlo en flujos de trabajos aplicables a pequeños equipos de desarrollo. Es lo que se denomina <em>workflow</em>.</p>
+
+<p>Después de leer bastante sobre el tema, así es como yo considero que es la mejor forma de trabajar con Git cuando existen más personas aparte de ti trabajando en un mismo proyecto. Aunque en general es buena práctica aplicarlo siempre.</p>
+
+<h2>Workflow</h2>
+
+<p>En este workflow, siempre existen en todo momento dos ramas principales: <strong>master</strong> y <strong>develop</strong>.</p>
+
+<p><em>master</em> representa la versión última y más estable de tu proyecto. Siempre siempre siempre pasas a producción desde esta rama.</p>
+
+<p><em>develop</em> contiene el desarrollo, los cambios que están en proceso, las mejoras del proyecto o las nuevas versiones. Contiene una versión de tu proyecto que no necesariamente tiene que estar lista para pasar a producción.</p>
+
+<p>Desde la rama <em>develop</em>, se crean ramas para trabajar en fixes y desarrollos individuales. Es en estas ramas donde trabajan los desarrolladores. Una vez que un nuevo feature/bugfix está listo, y testeado, se hace merge con la rama <em>develop</em>. En este punto donde entran los test de compatibilidad con el resto de código de tus otros compañeros de equipo.</p>
+
+<p>Una vez que la rama <em>develop</em> esté estable y se alcance el objetivo/iteración deseado del desarrollo, se hace un <strong>merge con la rama master</strong>.</p>
+
+<p>Si nos fijamos bien, en todo el proceso se crean 3 niveles de ramas con diferente estabilidad. Conforme subamos de nivel, nuestro código se presupone más estable. Al hacer deploy desde la rama <em>master</em>, la rama de primer nivel, nos estamos asegurando (si hacemos las cosas medio bien) una alta probabilidad de que nuestro código no contenga errores.</p>
+
+<p>Veamos un ejemplo de cómo aplicar este workflow paso a paso. Pongamos que estamos trabajando en un proyecto y en un momento determinado, detectamos un bug o el cliente pide un cambio.</p>
+
+<p>Creamos una rama partiendo de la rama <em>develop</em>. En este caso la llamamos <em>changebugfix</em>.</p>
+
+<pre class="language-git"><code class="language-git">git checkout -b changebugfix
+</code></pre>
+
+
+<p>Trabajas en los cambios a nivel de código, hasta que consigas resolver el problema o implementar la nueva funcionalidad.</p>
+
+<pre class="language-git"><code class="language-git">touch file.rb && git add file.rb
+…
+git add file.rb
+git commit -m "Adding new feature"
+touch lib/gem.rb && git add lib/gem.rb
+…
+git add lib/gem.rb
+git commit -m "Adding new lib"
+</code></pre>
+
+
+<p>Merge <em>changebugfix</em> en la rama <em>develop</em>. Y testing, testing, testing.</p>
+
+<pre class="language-git"><code class="language-git">git checkout develop
+git pull
+git merge changebugfix
+</code></pre>
+
+
+<p>En este punto, descubres que algo no va bien, probablemente no sea culpa tuya, nunca lo es. Pero te toca seguir trabajando en tu rama <em>changebugfix</em> para lidiar con este conflicto en el código. Vuelta al punto 2.</p>
+
+<p>Todo funciona perfecto. Es hora de hacer el merge definitivo y borrar la rama de desarrollo:</p>
+
+<pre class="language-git"><code class="language-git">git checkout develop
+git merge changebugfix
+git push origin develop
+git branch -d changebugfix
+</code></pre>
+
+
+<p>Es tiempo de release. El cliente quiere ver lo que hay y poner su logo más grande.</p>
+
+<pre class="language-git"><code class="language-git">git checkout master
+git merge develop
+</code></pre>
+
+
+<p>Como podéis ver, además de tener un proceso, es fundamental tener una buena comunicación entre los miembros del equipo.</p>
+
+<h2>Rebase</h2>
+
+<p>Como siempre trabajamos en nuestra rama local de desarrollo, eso nos permite entre otras cosas, hacer <em>rebase</em>. Que no es más que una reorganización, pudiendo editar, agrupar y reordenar commits. En última instancia estamos modificando el histórico de git. Y como se intuye, esto puede ser peligroso, así que hay que tener cuidado.</p>
+
+<p>Yo hago commits continuamente, mucho. Si te pasa como a mi, probablemente termines una rama con algo parecido a esto:</p>
+
+<pre class="language-git"><code class="language-git">Init feature
+Add media query mixin
+Fix header link
+Fix media query for devices
+Add missing semi colon
+Refactor
+Fix typo
+Bugfixing in some stuff
+Fix link
+</code></pre>
+
+
+<p>Cuando alguien en tu equipo de desarrollo revisa el proyecto, es bastante probable que todo le parezca carente de sentido alguno. Y pensandolo friamente, no es que me deje en buen lugar precisamente ir aireando los errores tontos que cometes al programar :)</p>
+
+<p>Sería más lógico agrupar todos los commits en aquellos que sean más importantes para el desarrollo. En nuestro caso, podríamos agrupar todos los commits en uno solo: &#8216;Add responsive request for devices&#8217;.</p>
+
+<p>Para hacer esto, justo antes de hacer el <em>merge</em> de nuestra rama con <em>develop</em>, ejecutamos un rebase:</p>
+
+<pre class="language-git"><code class="language-git">git rebase develop -i
+</code></pre>
+
+
+<p>El parámetro -i (interactively) nos permite de forma fácil modificar los commits individuales. Esto nos mostrará por terminal algo como esto:</p>
+
+<pre class="language-git"><code class="language-git">pick 76012fa2 Init feature changebugfix
+pick 1ed9323a Add media query mixin
+pick 3ae44d64 Fix header link
+pick 61b1ce34 Fix media query for devices
+pick 120ad36d Add missing semi colon
+pick 89c0a230 Refactor
+pick 19ac34e6 Fix typo
+pick 239d0ae2 Bugfixing in some stuff
+pick 76012fa2 Fix link
+</code></pre>
+
+
+<p>La palabra <em>pick</em> la podemos cambiar por diferentes comandos, entre los que más se usan están <strong>r (reword)</strong> para editar el mensaje del commit y <strong>s (squash)</strong> para agrupar el commit con su predecesor. En nuestro caso terminamos teniendo algo parecido a esto:</p>
+
+<pre class="language-git"><code class="language-git">pick 76012fa2 Init feature changebugfix
+s 1ed9323 Add media query mixin
+s 3ae44d6 Fix header link
+s 61b1ce3 Fix media query for devices
+s 120ad36 Add missing semi colon
+s 89c0a23 Refactor
+s 19ac34e Fix typo
+s 239d0ae Bugfixing in some stuff
+s 76012fa Fix link
+</code></pre>
+
+
+<p>Como el primer comando es <em>s</em> al guardar nos preguntará el mensaje para el commit general. Es entonces cuando cambiaremos el commit por &#8216;Add responsive request for devices&#8217;.</p>
+
+<p>Si ahora hacemos</p>
+
+<pre class="language-git"><code class="language-git">git log --oneline
+</code></pre>
+
+
+<p>Veremos un solo commit más amigable y comprensible, en lugar de 7 commits con etiquetas menos intuitivas.</p>
+
+<pre class="language-git"><code  class="language-git">git log --oneline
+ef3c709 Add responsive request for devices
+</code></pre>
+
+
+<p>Despues de hacer rebase, continuamos con el merge sobre la rama develop. Recordemos que el rebase solo lo usamos como una forma de organizar y simplificar el histórico de git.</p>
+
+<pre class="language-git"><code class="language-git">git checkout develop
+git merge changebugfix
+git branch -d changebugfix
+</code></pre>
+
+</div>
+  <div class="sharing">
+  
+  
+</div>
+
+  
+
+</article>
+
+
+        <footer>
+
+    </footer>
+
+  </div>
+
+    <!-- JavaScript at the bottom for fast page loading -->
+
+  <!-- Grab Google CDN's jQuery, with a protocol relative URL; fall back to local if offline -->
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js"></script>
+  <script>window.jQuery || document.write('<script src="js/libs/jquery-1.6.2.min.js"><\/script>')</script>
+
+
+  <!-- scripts concatenated and minified via ant build script-->
+  <script defer src="/javascripts/app.js"></script>
+  <script defer src="/javascripts/prism.js"></script>
+  <!-- end scripts-->
+
+	
+
+  <!-- Prompt IE 6 users to install Chrome Frame. Remove this if you want to support IE 6.
+       chromium.org/developers/how-tos/chrome-frame-getting-started -->
+  <!--[if lt IE 7 ]>
+    <script src="//ajax.googleapis.com/ajax/libs/chrome-frame/1.0.3/CFInstall.min.js"></script>
+    <script>window.attachEvent('onload',function(){CFInstall.check({mode:'overlay'})})</script>
+  <![endif]-->
+ 
+
+
+
+
+
+
+
+</body>
+</html>
+

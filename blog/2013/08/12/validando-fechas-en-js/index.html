@@ -1,0 +1,173 @@
+<!doctype html>
+<!-- paulirish.com/2008/conditional-stylesheets-vs-css-hacks-answer-neither/ -->
+<!--[if lt IE 7]> <html class="no-js ie6 oldie" lang="en"> <![endif]-->
+<!--[if IE 7]>    <html class="no-js ie7 oldie" lang="en"> <![endif]-->
+<!--[if IE 8]>    <html class="no-js ie8 oldie" lang="en"> <![endif]-->
+<!-- Consider adding an manifest.appcache: h5bp.com/d/Offline -->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en"> <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+
+  <!-- Use the .htaccess and remove these lines to avoid edge case issues.
+       More info: h5bp.com/b/378 -->
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+
+  <title>Validando fechas en JS |  Buti</title>
+  <meta name="author" content="Buti">
+  
+
+  
+  <!-- Mobile viewport optimized: j.mp/bplateviewport -->
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+
+  <!-- Place favicon.ico and apple-touch-icon.png in the root directory: mathiasbynens.be/notes/touch-icons -->
+
+  <!-- CSS: implied media=all -->
+  <!-- CSS concatenated and minified via ant build script-->
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/stylesheets/prism.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href='http://fonts.googleapis.com/css?family=Inconsolata' rel='stylesheet' type='text/css'>
+  <!-- end CSS-->
+
+  <!-- More ideas for your <head> here: h5bp.com/d/head-Tips -->
+
+  <!-- All JavaScript at the bottom, except for Modernizr / Respond.
+       Modernizr enables HTML5 elements & feature detects; Respond is a polyfill for min/max-width CSS3 Media Queries
+       For optimal performance, use a custom Modernizr build: www.modernizr.com/download/ -->
+  <script src="/javascripts/libs/modernizr-2.0.6.min.js"></script>
+</head>
+
+<body id="post">
+
+  <div id="container">
+    <header>
+    <a href="http://nobuti.github.com">Home</a>
+</header>
+
+    <article>
+
+
+  <h1 class="article-title">Validando Fechas en JS</h1>
+  <div class="article-content"><p>Que Javascript no es perfecto ya lo sabemos todos. Y una de las cosas que más se echan en falta es una <a href="http://dygraphs.com/date-formats.html">mayor consistencia</a> a la hora de trabajar con fechas. Para aliviar un poco el «dolor» existen grandes librerías como <a href="http://momentjs.com/">moments.js</a>.</p>
+
+<p>Pero muchas veces, la mayoría de las veces, nuestra aplicación tan solo requiere validar el formato y la validez de una fecha que introduce el usuario. Este problema se puede resolver en fase de diseño, tirando de los famosos 3 selects que manejan días, meses y años. Pero otras veces, por la razón que sea, nuestro proyecto requiere de 3 cajas de texto donde el usuario introduce una fecha. O incluso una sola caja de texto. En este caso, la tarea de validar la cadena de texto que respresenta la fecha cobra de relativa importancia, y aunque esto no implique que no validemos de nuevo este dato en el servidor, ya sabemos lo caras que se han vuelto las peticiones http en estos días de crisis.</p>
+
+<p>El objeto Date de javascript es algo especial, porque internamente maneja un conocimiento intrínseco de las fechas. ¿Y esto qué significa? Pues muy sencillo, si nosotros intentamos «crear» una fecha con lo siguiente:</p>
+
+<pre><code class="language-js">new Date(2013,11,32) //32 diciembre de 2013
+</code></pre>
+
+
+<p>js nos devolverá lo siguiente:</p>
+
+<pre><code class="language-js">Jan 1st, 2014
+</code></pre>
+
+
+<p>Es decir, js nos devuelve la fecha válida más cercana. Genial!</p>
+
+<p>Genial, porque sabiendo esto, ya sabemos que js nos devolverá la misma fecha de entrada si ésta es válida. Ergo, tenemos un método simple para validar si una fecha es correcta. Para validar el formato simplemente utilizaremos una expresión regular. Y operando sobre la cadena, extrayendo las componentes de la fecha, podemos generar un objeto fecha y ver si permanece inalterada (válida) o si cambia (no válida).</p>
+
+<p>Es decir, algo así como esta pequeña utilidad:</p>
+
+<pre class="language-js"><code class="language-js">var Momento = (function() {
+
+  var getDateComponents = function(date) {
+    return [+date.getFullYear(), +date.getMonth(), +date.getDate()];
+  };
+
+  var getFullDate = function(date) {
+    var _ref = getDateComponents(date);
+    return ''+ _ref[0] + (_ref[1] + 1) + _ref[2];
+  };
+  
+  var hasFormatDate = function(date) {
+    return date.match(/^(\d{4})[\/\-](0?[1-9]|1[012])[\/\-](0?[1-9]|[12][0-9]|3[01])$/);
+  };
+  
+  var moment = {
+    isValid: function(date) {
+      var components, ref, test_date, user_date;
+      components = hasFormatDate(date);
+
+      if (components === null) {
+        return false;
+      }
+
+      ref = components.slice(1).map(function(item) {
+          return ~~item;
+      });
+
+      test_date = ''+ ref[0] + ref[1] + ref[2];
+      user_date = new Date(ref[0], ref[1] - 1, ref[2]);
+
+      return test_date === getFullDate(user_date);
+    }
+  };
+    
+  return moment;
+
+})();
+</code></pre>
+
+
+<p>Y unos cuantos test rápidos abriendo la consola de Chrome:</p>
+
+<pre class="language-js"><code class="language-js">console.log("2011 " + Momento.isValid("2011"));
+console.log("2011-06 " + Momento.isValid("2011-06"));
+console.log("2011-06-21 " + Momento.isValid("2011-06-21"));
+console.log("2011-6-21 " + Momento.isValid("2011-6-21"));
+console.log("2013-6-1 " + Momento.isValid("2011-6-1"));
+console.log("2012-08-32 " + Momento.isValid("2012-08-32"));
+console.log("2013-01-01 " + Momento.isValid("2013-01-01"));
+console.log("2011-11-31 " + Momento.isValid("2013-11-31"));
+</code></pre>
+
+</div>
+  <div class="sharing">
+  
+  
+</div>
+
+  
+
+</article>
+
+
+        <footer>
+
+    </footer>
+
+  </div>
+
+    <!-- JavaScript at the bottom for fast page loading -->
+
+  <!-- Grab Google CDN's jQuery, with a protocol relative URL; fall back to local if offline -->
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js"></script>
+  <script>window.jQuery || document.write('<script src="js/libs/jquery-1.6.2.min.js"><\/script>')</script>
+
+
+  <!-- scripts concatenated and minified via ant build script-->
+  <script defer src="/javascripts/app.js"></script>
+  <script defer src="/javascripts/prism.js"></script>
+  <!-- end scripts-->
+
+	
+
+  <!-- Prompt IE 6 users to install Chrome Frame. Remove this if you want to support IE 6.
+       chromium.org/developers/how-tos/chrome-frame-getting-started -->
+  <!--[if lt IE 7 ]>
+    <script src="//ajax.googleapis.com/ajax/libs/chrome-frame/1.0.3/CFInstall.min.js"></script>
+    <script>window.attachEvent('onload',function(){CFInstall.check({mode:'overlay'})})</script>
+  <![endif]-->
+ 
+
+
+
+
+
+
+
+</body>
+</html>
+

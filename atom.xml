@@ -1,0 +1,355 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Kind of blog]]></title>
+  <link href="http://nobuti.github.com/atom.xml" rel="self"/>
+  <link href="http://nobuti.github.com/"/>
+  <updated>2013-08-13T00:02:51+02:00</updated>
+  <id>http://nobuti.github.com/</id>
+  <author>
+    <name><![CDATA[Buti]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Validando fechas en JS]]></title>
+    <link href="http://nobuti.github.com/blog/2013/08/12/validando-fechas-en-js/"/>
+    <updated>2013-08-12T23:25:00+02:00</updated>
+    <id>http://nobuti.github.com/blog/2013/08/12/validando-fechas-en-js</id>
+    <content type="html"><![CDATA[<p>Que Javascript no es perfecto ya lo sabemos todos. Y una de las cosas que más se echan en falta es una <a href="http://dygraphs.com/date-formats.html">mayor consistencia</a> a la hora de trabajar con fechas. Para aliviar un poco el «dolor» existen grandes librerías como <a href="http://momentjs.com/">moments.js</a>.</p>
+
+<p>Pero muchas veces, la mayoría de las veces, nuestra aplicación tan solo requiere validar el formato y la validez de una fecha que introduce el usuario. Este problema se puede resolver en fase de diseño, tirando de los famosos 3 selects que manejan días, meses y años. Pero otras veces, por la razón que sea, nuestro proyecto requiere de 3 cajas de texto donde el usuario introduce una fecha. O incluso una sola caja de texto. En este caso, la tarea de validar la cadena de texto que respresenta la fecha cobra de relativa importancia, y aunque esto no implique que no validemos de nuevo este dato en el servidor, ya sabemos lo caras que se han vuelto las peticiones http en estos días de crisis.</p>
+
+<p>El objeto Date de javascript es algo especial, porque internamente maneja un conocimiento intrínseco de las fechas. ¿Y esto qué significa? Pues muy sencillo, si nosotros intentamos «crear» una fecha con lo siguiente:</p>
+
+<pre><code class="language-js">new Date(2013,11,32) //32 diciembre de 2013
+</code></pre>
+
+
+<p>js nos devolverá lo siguiente:</p>
+
+<pre><code class="language-js">Jan 1st, 2014
+</code></pre>
+
+
+<p>Es decir, js nos devuelve la fecha válida más cercana. Genial!</p>
+
+<p>Genial, porque sabiendo esto, ya sabemos que js nos devolverá la misma fecha de entrada si ésta es válida. Ergo, tenemos un método simple para validar si una fecha es correcta. Para validar el formato simplemente utilizaremos una expresión regular. Y operando sobre la cadena, extrayendo las componentes de la fecha, podemos generar un objeto fecha y ver si permanece inalterada (válida) o si cambia (no válida).</p>
+
+<p>Es decir, algo así como esta pequeña utilidad:</p>
+
+<pre class="language-js"><code class="language-js">var Momento = (function() {
+
+  var getDateComponents = function(date) {
+    return [+date.getFullYear(), +date.getMonth(), +date.getDate()];
+  };
+
+  var getFullDate = function(date) {
+    var _ref = getDateComponents(date);
+    return ''+ _ref[0] + (_ref[1] + 1) + _ref[2];
+  };
+  
+  var hasFormatDate = function(date) {
+    return date.match(/^(\d{4})[\/\-](0?[1-9]|1[012])[\/\-](0?[1-9]|[12][0-9]|3[01])$/);
+  };
+  
+  var moment = {
+    isValid: function(date) {
+      var components, ref, test_date, user_date;
+      components = hasFormatDate(date);
+
+      if (components === null) {
+        return false;
+      }
+
+      ref = components.slice(1).map(function(item) {
+          return ~~item;
+      });
+
+      test_date = ''+ ref[0] + ref[1] + ref[2];
+      user_date = new Date(ref[0], ref[1] - 1, ref[2]);
+
+      return test_date === getFullDate(user_date);
+    }
+  };
+    
+  return moment;
+
+})();
+</code></pre>
+
+
+<p>Y unos cuantos test rápidos abriendo la consola de Chrome:</p>
+
+<pre class="language-js"><code class="language-js">console.log("2011 " + Momento.isValid("2011"));
+console.log("2011-06 " + Momento.isValid("2011-06"));
+console.log("2011-06-21 " + Momento.isValid("2011-06-21"));
+console.log("2011-6-21 " + Momento.isValid("2011-6-21"));
+console.log("2013-6-1 " + Momento.isValid("2011-6-1"));
+console.log("2012-08-32 " + Momento.isValid("2012-08-32"));
+console.log("2013-01-01 " + Momento.isValid("2013-01-01"));
+console.log("2011-11-31 " + Momento.isValid("2013-11-31"));
+</code></pre>
+
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Trabajando con Git: Workflow]]></title>
+    <link href="http://nobuti.github.com/blog/2013/02/16/trabajando-con-git-workflow/"/>
+    <updated>2013-02-16T06:58:00+01:00</updated>
+    <id>http://nobuti.github.com/blog/2013/02/16/trabajando-con-git-workflow</id>
+    <content type="html"><![CDATA[<p>TL;TD Git mola. Y así es como lo veo yo.</p>
+
+<h2>Introducción</h2>
+
+<p>El objetivo de este post no es convencerte de usar Git. Úsalo y punto. Ni tampoco se trata de una introducción para usarlo. <a href="http://rogerdudler.github.com/git-guide/index.es.html">Hay muchas y muy buenas</a>. En lugar de eso, voy a tratar de plasmar algunas ideas de como usarlo en flujos de trabajos aplicables a pequeños equipos de desarrollo. Es lo que se denomina <em>workflow</em>.</p>
+
+<p>Después de leer bastante sobre el tema, así es como yo considero que es la mejor forma de trabajar con Git cuando existen más personas aparte de ti trabajando en un mismo proyecto. Aunque en general es buena práctica aplicarlo siempre.</p>
+
+<h2>Workflow</h2>
+
+<p>En este workflow, siempre existen en todo momento dos ramas principales: <strong>master</strong> y <strong>develop</strong>.</p>
+
+<p><em>master</em> representa la versión última y más estable de tu proyecto. Siempre siempre siempre pasas a producción desde esta rama.</p>
+
+<p><em>develop</em> contiene el desarrollo, los cambios que están en proceso, las mejoras del proyecto o las nuevas versiones. Contiene una versión de tu proyecto que no necesariamente tiene que estar lista para pasar a producción.</p>
+
+<p>Desde la rama <em>develop</em>, se crean ramas para trabajar en fixes y desarrollos individuales. Es en estas ramas donde trabajan los desarrolladores. Una vez que un nuevo feature/bugfix está listo, y testeado, se hace merge con la rama <em>develop</em>. En este punto donde entran los test de compatibilidad con el resto de código de tus otros compañeros de equipo.</p>
+
+<p>Una vez que la rama <em>develop</em> esté estable y se alcance el objetivo/iteración deseado del desarrollo, se hace un <strong>merge con la rama master</strong>.</p>
+
+<p>Si nos fijamos bien, en todo el proceso se crean 3 niveles de ramas con diferente estabilidad. Conforme subamos de nivel, nuestro código se presupone más estable. Al hacer deploy desde la rama <em>master</em>, la rama de primer nivel, nos estamos asegurando (si hacemos las cosas medio bien) una alta probabilidad de que nuestro código no contenga errores.</p>
+
+<p>Veamos un ejemplo de cómo aplicar este workflow paso a paso. Pongamos que estamos trabajando en un proyecto y en un momento determinado, detectamos un bug o el cliente pide un cambio.</p>
+
+<p>Creamos una rama partiendo de la rama <em>develop</em>. En este caso la llamamos <em>changebugfix</em>.</p>
+
+<pre class="language-git"><code class="language-git">git checkout -b changebugfix
+</code></pre>
+
+
+<p>Trabajas en los cambios a nivel de código, hasta que consigas resolver el problema o implementar la nueva funcionalidad.</p>
+
+<pre class="language-git"><code class="language-git">touch file.rb && git add file.rb
+…
+git add file.rb
+git commit -m "Adding new feature"
+touch lib/gem.rb && git add lib/gem.rb
+…
+git add lib/gem.rb
+git commit -m "Adding new lib"
+</code></pre>
+
+
+<p>Merge <em>changebugfix</em> en la rama <em>develop</em>. Y testing, testing, testing.</p>
+
+<pre class="language-git"><code class="language-git">git checkout develop
+git pull
+git merge changebugfix
+</code></pre>
+
+
+<p>En este punto, descubres que algo no va bien, probablemente no sea culpa tuya, nunca lo es. Pero te toca seguir trabajando en tu rama <em>changebugfix</em> para lidiar con este conflicto en el código. Vuelta al punto 2.</p>
+
+<p>Todo funciona perfecto. Es hora de hacer el merge definitivo y borrar la rama de desarrollo:</p>
+
+<pre class="language-git"><code class="language-git">git checkout develop
+git merge changebugfix
+git push origin develop
+git branch -d changebugfix
+</code></pre>
+
+
+<p>Es tiempo de release. El cliente quiere ver lo que hay y poner su logo más grande.</p>
+
+<pre class="language-git"><code class="language-git">git checkout master
+git merge develop
+</code></pre>
+
+
+<p>Como podéis ver, además de tener un proceso, es fundamental tener una buena comunicación entre los miembros del equipo.</p>
+
+<h2>Rebase</h2>
+
+<p>Como siempre trabajamos en nuestra rama local de desarrollo, eso nos permite entre otras cosas, hacer <em>rebase</em>. Que no es más que una reorganización, pudiendo editar, agrupar y reordenar commits. En última instancia estamos modificando el histórico de git. Y como se intuye, esto puede ser peligroso, así que hay que tener cuidado.</p>
+
+<p>Yo hago commits continuamente, mucho. Si te pasa como a mi, probablemente termines una rama con algo parecido a esto:</p>
+
+<pre class="language-git"><code class="language-git">Init feature
+Add media query mixin
+Fix header link
+Fix media query for devices
+Add missing semi colon
+Refactor
+Fix typo
+Bugfixing in some stuff
+Fix link
+</code></pre>
+
+
+<p>Cuando alguien en tu equipo de desarrollo revisa el proyecto, es bastante probable que todo le parezca carente de sentido alguno. Y pensandolo friamente, no es que me deje en buen lugar precisamente ir aireando los errores tontos que cometes al programar :)</p>
+
+<p>Sería más lógico agrupar todos los commits en aquellos que sean más importantes para el desarrollo. En nuestro caso, podríamos agrupar todos los commits en uno solo: &#8216;Add responsive request for devices&#8217;.</p>
+
+<p>Para hacer esto, justo antes de hacer el <em>merge</em> de nuestra rama con <em>develop</em>, ejecutamos un rebase:</p>
+
+<pre class="language-git"><code class="language-git">git rebase develop -i
+</code></pre>
+
+
+<p>El parámetro -i (interactively) nos permite de forma fácil modificar los commits individuales. Esto nos mostrará por terminal algo como esto:</p>
+
+<pre class="language-git"><code class="language-git">pick 76012fa2 Init feature changebugfix
+pick 1ed9323a Add media query mixin
+pick 3ae44d64 Fix header link
+pick 61b1ce34 Fix media query for devices
+pick 120ad36d Add missing semi colon
+pick 89c0a230 Refactor
+pick 19ac34e6 Fix typo
+pick 239d0ae2 Bugfixing in some stuff
+pick 76012fa2 Fix link
+</code></pre>
+
+
+<p>La palabra <em>pick</em> la podemos cambiar por diferentes comandos, entre los que más se usan están <strong>r (reword)</strong> para editar el mensaje del commit y <strong>s (squash)</strong> para agrupar el commit con su predecesor. En nuestro caso terminamos teniendo algo parecido a esto:</p>
+
+<pre class="language-git"><code class="language-git">pick 76012fa2 Init feature changebugfix
+s 1ed9323 Add media query mixin
+s 3ae44d6 Fix header link
+s 61b1ce3 Fix media query for devices
+s 120ad36 Add missing semi colon
+s 89c0a23 Refactor
+s 19ac34e Fix typo
+s 239d0ae Bugfixing in some stuff
+s 76012fa Fix link
+</code></pre>
+
+
+<p>Como el primer comando es <em>s</em> al guardar nos preguntará el mensaje para el commit general. Es entonces cuando cambiaremos el commit por &#8216;Add responsive request for devices&#8217;.</p>
+
+<p>Si ahora hacemos</p>
+
+<pre class="language-git"><code class="language-git">git log --oneline
+</code></pre>
+
+
+<p>Veremos un solo commit más amigable y comprensible, en lugar de 7 commits con etiquetas menos intuitivas.</p>
+
+<pre class="language-git"><code  class="language-git">git log --oneline
+ef3c709 Add responsive request for devices
+</code></pre>
+
+
+<p>Despues de hacer rebase, continuamos con el merge sobre la rama develop. Recordemos que el rebase solo lo usamos como una forma de organizar y simplificar el histórico de git.</p>
+
+<pre class="language-git"><code class="language-git">git checkout develop
+git merge changebugfix
+git branch -d changebugfix
+</code></pre>
+
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[CSS en listas numeradas]]></title>
+    <link href="http://nobuti.github.com/blog/2013/01/13/css-en-listas-numeradas/"/>
+    <updated>2013-01-13T12:25:00+01:00</updated>
+    <id>http://nobuti.github.com/blog/2013/01/13/css-en-listas-numeradas</id>
+    <content type="html"><![CDATA[<p>En un proyecto en el que estoy trabajando, me he tenido que enfrentar a una lista enumerada, donde los índices tenían un estilo distinto al contenido del item.</p>
+
+<p>El enfoque tradicional siempre ha sido (aquí es cuando decís que vosotros no lo haceis así y yo quedo como un tonto) tratar esta tipología como una lista no ordenada y estilar el número a fuego dentro del elemento li. Esto realmente funciona, pero tiene el principal problema de que semánticamente deja bastante que desear. Es lo que se suele denominar «code smell».</p>
+
+<p>Esta vez, con un poco más de tiempo, he sido capaz de encontrar una solución bastante más usable y semánticamente correcta, que permite modificar los estilos a nuestro antojo. <a href="http://codepen.io/nobuti/pen/efsjw">Podeís ver la demo aquí</a>.</p>
+
+<pre><code class="language-css">
+  ol {
+    margin: 0;
+    padding: 0;
+    counter-reset:li;
+  }
+  ol > li {
+    position:relative;
+    list-style:none;
+    margin-bottom: 10px;
+  }
+  ol > li:before {
+    content:counter(li); 
+    counter-increment:li; 
+    font-weight:bold;
+    background: #141414;
+    color: #fff;
+    padding: 2px 10px;
+    margin-right: 5px;
+  }
+</code></pre>
+
+
+<p>Primero reseteamos el comportamiento normal de uns lista ordenada con <strong>list-style:none;</strong>.</p>
+
+<p><strong>counter-reset</strong> and <strong>counter-increment</strong>. Yo no conocía <a href="http://www.w3.org/TR/CSS21/generate.html#counters">estas propiedades</a>. Crean la referencia inicial para mostrar el «conteo». Ambas admiten un elemento a contar y un número. <strong>counter-reset</strong> establece el primer valor, a partir de donde vamos a empezar a contar. Por defecto este valor es 0. Y <strong>counter-increment</strong> el valor de cada iteración, que por defecto es 1. En ambos casos el elemento de referencia es <strong>li</strong>, que son los elementos que queremos contar.</p>
+
+<p>Utilizando el pseudo elemento <strong>:before</strong> y <a href="http://www.w3.org/TR/CSS21/generate.html#propdef-content">la función <strong>counter(element)</strong></a> del elemento content, mostramos los números. En este caso, solo muestro el número, pero si quisiera mostrar el número seguido de un punto lo podríamos hacer así:</p>
+
+<pre><code class="language-css">
+  ol > li:before {
+    content:counter(li)". "; 
+  }
+</code></pre>
+
+
+<p>Lo dicho, aquí <a href="http://codepen.io/nobuti/pen/efsjw">podeís jugar con los distintos valores</a>. Espero que os haya parecido interesante.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[2013]]></title>
+    <link href="http://nobuti.github.com/blog/2013/01/02/2013/"/>
+    <updated>2013-01-02T10:37:00+01:00</updated>
+    <id>http://nobuti.github.com/blog/2013/01/02/2013</id>
+    <content type="html"><![CDATA[<p>Nunca he sido de echar la vista atrás, siempre he creído que no merece la pena, lo que está por venir siempre es más ilusionante. Tampoco soy de los que empiezan el año marcándose propósitos. No recuerdo que nunca me haya marcado ninguno, ni pienso que sea bueno manejando propósitos, simplemente no encajo. Pero por eso mismo, este año voy a hacerlo, para romper la norma, para como dicen, empezar con buen pie.</p>
+
+<p>2012 ha sido un año extraño. Todavía no sé si ha sido un año bueno o regular. Por más que hago un balance, veo cosas buenas y cosas no tan buenas. Malo no, siempre se pueden sacar cosas que merecen mucho la pena.</p>
+
+<p>En lo profesional, no he acabado contento con el trabajo que hacemos en <a href="http://nicemondays.com">nicemondays</a>. Ha llegado un punto después de 4 años en que necesito hacer proyectos distintos, porque ahora mismo estoy aburrido. Yo me considero una persona inquieta, leer es una de mis pasiones. Y en 2012 si algo he leído han sido libros y artículos sobre trabajo. Y ves que estamos viviendo una época muy intensa y excitante, con nuevas tecnologías cada mes. Ves que todo avanza y progresa muy rápido. Y tú sigues anclado en PHP e IE7.</p>
+
+<p>Pero sin embargo, trabajo con gente genial, que me tratan superbien. Les debo muchísimo. <strong>Y los números cuadran</strong>. Y eso en la época dificil que nos ha tocado vivir, ya es como para estar contento.</p>
+
+<p>En lo personal, este año me he dado cuenta de que los años no pasan en balde. No lo digo por mí, todavía soy joven (o quiero pensarlo) aunque no hay que confiarse ni descuidarse. He notado un deterioro grande en la salud de mis seres queridos. No enfermedades ni nada importante (<em>toco madera</em>), pero sí pequeños achaques, cada vez más continuados, que te hacen pensar y preocuparte bastante.</p>
+
+<p>Empezamos el año haciendo un gran viaje. Volvimos por tercera vez a Nueva York. Y lo hacíamos con dos amigas. Siempre habíamos viajado solos, y siempre habíamos querido viajar con amigos. Pero después de la experiencia, quizás nunca volvamos a hacerlo. El viaje estuvo genial, hay que estar muy muerto por dentro para ir a Nueva York y no pasarlo bien. Pero todas las personas no somos iguales, y surgen roces que van limando las relaciones. Y al final, las cosas dejan huellas y nunca vuelve a ser lo mismo.</p>
+
+<p>2012 ha sido el año en que me cansé de twitter. Mejor dicho, me cansé de usarlo como lo usaba. Ahora lo uso como herramienta de trabajo. Sigo a gente de mi mismo entorno profesional y pocas veces digo algo fuera de ese contexto. Es realmente sorprendente que no haya tenido unfollows masivos, realmente me he convertido en un auténtico coñazo. Supongo que todos somos demasido políticamente correctos para algunas cosas.</p>
+
+<p>También ha sido este el año en que he dejado de ver la tele. En casa ya solo vemos series. Y cada vez es más dificil esto también, porque no suele haber continuidad.</p>
+
+<p>En definitva, 2012 ha sido un año bueno o regular.</p>
+
+<p>Quizás por eso, tengo mucha ilusión en este 2013 que empieza. Y como decía al principio, este año me gustaría hacer una lista (eso sí que nos gusta a los programadores) de propósitos, una lista a la que volver de vez en cuando y ver mi propio progreso, propósitos que juntos formen un objetivo: que el 2013 sea mejor que el 2012.</p>
+
+<ul>
+<li><p>Si hay algo que ansiamos mi mujer y yo en estos momentos es tener un niño. Tenemos una casa grande, y ya es momento de que la ocupe más gente. Llevamos ya tiempo buscando y ojalá sea este el año. Creo que sí. Deseo que sí.</p></li>
+<li><p>Profesionalmente me gustaría dar un salto hacia delante. Y me gustaría darlo en <a href="http://nicemondays.com">nicemondays</a>. Estamos buscando una oficina donde trabajar, al menos los que estamos en Málaga. Creo que esto va a suponer un gran paso, y nos va a traer cosas muy buenas tanto personales como profesionales.</p></li>
+<li><p>Este año tengo la intención de cambiar mi stack tecnológico. Javascript, SASS, Ruby y Node serán mis tecnologías. Por el tipo de proyectos que desarrollamos, Ruby (ya sea Sinatra o RoR) encaja mejor. Pero Node es realmente divertido y poco a poco está adquieriendo una madurez cada vez mayor.</p></li>
+<li><p>Colaborar en proyectos opensource. Este año me he quejado de que no hacemos cosas nuevas, y creo que este punto puede ser una válvula de escape en estos momentos de desidia.</p></li>
+<li><p>Escribir de forma más continuada en el blog. Escribir sobre todo de trabajo, para aprender sobre todo. Quien sabe, igual hay alguien que se pueda aprovechar de algo de lo que aquí escriba.</p></li>
+<li><p>Como logro personal, mejorar mi inglés debe estar en esta lista. En 2013 me gustaría escribir unos cuantos posts en inglés.</p></li>
+</ul>
+
+
+<p>En definitiva, creo que este 2013 va a ser un gran año, estoy convencido.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Hello octopress]]></title>
+    <link href="http://nobuti.github.com/blog/2012/12/27/hello-octopress/"/>
+    <updated>2012-12-27T17:49:00+01:00</updated>
+    <id>http://nobuti.github.com/blog/2012/12/27/hello-octopress</id>
+    <content type="html"><![CDATA[<p>Pues eso, otro intento. Otra válvula de escape, otra página en blanco a la que enfrentarme. Sin obligaciones, sin condiciones, pero (espero) sin descanso. Solo prometo intentarlo.</p>
+]]></content>
+  </entry>
+  
+</feed>
